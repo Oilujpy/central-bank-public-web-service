@@ -56,5 +56,65 @@ namespace CentralBankPublicWebService
 
             return creditHistoryResponse;
         }
+
+        [WebMethod]        
+        public List<FinancialHealthResult> FinancialHealth(string juridicTaxpayerIdentificationNumber)
+        {
+            List<FinancialHealthResult> financialHealthResponse = new List<FinancialHealthResult>();
+
+            using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["default"].ConnectionString))
+            {
+                connection.Open();
+
+                using (var command = new MySqlCommand("SELECT HIST_CREDITO_CLIENTE.INDICADOR, CONCEPTO_DEUDA.NOMBRE, HIST_CREDITO_CLIENTE.MONTO " +
+                    "FROM HIST_CREDITO_CLIENTE " +
+                    "INNER JOIN CLIENTE ON HIST_CREDITO_CLIENTE.CLIENTE_ID = CLIENTE.CLIENTE_ID " +
+                    "INNER JOIN CONCEPTO_DEUDA ON HIST_CREDITO_CLIENTE.CONCEPTO_ID = CONCEPTO_DEUDA.CONCEPTO_ID " +
+                    "WHERE CLIENTE.CEDULA = @juridicTaxpayerIdentificationNumber or CLIENTE.RNC = @juridicTaxpayerIdentificationNumber", connection))
+                {
+                    command.Parameters.AddWithValue("juridicTaxpayerIdentificationNumber", juridicTaxpayerIdentificationNumber);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            financialHealthResponse.Add(new FinancialHealthResult
+                            {
+                                Indicator = reader.GetString(0),
+                                Comment = reader.GetString(1),
+                                TotalAmount = reader.GetDecimal(2)
+                            });
+                        }
+                    }
+                }
+            }
+
+            return financialHealthResponse;
+        }
+
+        [WebMethod]
+        public InflationRateResult InflationRate(string period)
+        {
+            InflationRateResult inflationRateResult = new InflationRateResult();
+
+            using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["default"].ConnectionString))
+            {
+                connection.Open();
+
+                using (var command = new MySqlCommand("SELECT HIST_INFLACION_MONEDA.RATE " +
+                    "FROM HIST_INFLACION_MONEDA " +
+                    "WHERE HIST_INFLACION_MONEDA.PERIODO = @period", connection))
+                {
+                    command.Parameters.AddWithValue("period", period);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            inflationRateResult.Rate = reader.GetDecimal(0);
+                        }
+                    }
+                }
+            }
+            return inflationRateResult;
+        }
     }
 }
