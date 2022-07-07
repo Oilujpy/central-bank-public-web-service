@@ -25,11 +25,11 @@ namespace CentralBankPublicWebService
         }
 
         [WebMethod]
-        public List<CreditHistoryResponse> CreditHistory(string juridicTaxpayerIdentificationNumber)
+        public List<CreditHistoryResult> CreditHistory(string juridicTaxpayerIdentificationNumber)
         {
             DateTime startOfInvocation = DateTime.UtcNow;
             string requestorIp = HttpContext.Current.Request.UserHostAddress;
-            List<CreditHistoryResponse> creditHistoryResponse = new List<CreditHistoryResponse>();
+            List<CreditHistoryResult> creditHistoryResponse = new List<CreditHistoryResult>();
 
             using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["default"].ConnectionString))
             {
@@ -48,7 +48,7 @@ namespace CentralBankPublicWebService
                     {
                         while (reader.Read())
                         {
-                            creditHistoryResponse.Add(new CreditHistoryResponse
+                            creditHistoryResponse.Add(new CreditHistoryResult
                             {
                                 DebtorJuridicTaxpayerIdentificationNumber = reader.GetString(0),
                                 DebtConcept = reader.GetString(1),
