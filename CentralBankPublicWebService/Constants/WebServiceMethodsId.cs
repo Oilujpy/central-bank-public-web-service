@@ -2,7 +2,8 @@
 {
     public enum WebServiceMethodsId
     {
+        CurrencyExchange = 1,
         CreditHistory = 4,
-        CurrencyExchange = 1
+        PublicWebServiceHistoricalUseResult = 5,
     }
 }
