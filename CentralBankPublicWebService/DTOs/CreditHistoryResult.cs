@@ -2,7 +2,7 @@
 
 namespace CentralBankPublicWebService.DTOs
 {
-    public class CreditHistoryResponse
+    public class CreditHistoryResult
     {
         public string DebtorJuridicTaxpayerIdentificationNumber { get; set; }
         public string DebtConcept { get; set; }

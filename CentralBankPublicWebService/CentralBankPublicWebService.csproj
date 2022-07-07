@@ -94,9 +94,11 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DTOs\CreditHistoryResponse.cs" />
     <Compile Include="DTOs\FinancialHealthResult.cs" />
     <Compile Include="DTOs\InflationRateResult.cs" />
+    <Compile Include="Constants\WebServiceMethodsId.cs" />
+    <Compile Include="DTOs\CreditHistoryResult.cs" />
+    <Compile Include="DTOs\CurrencyExchangeResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublicService.asmx.cs">
       <DependentUpon>PublicService.asmx</DependentUpon>
