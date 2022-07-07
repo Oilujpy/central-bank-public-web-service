@@ -1,7 +1,10 @@
-﻿using CentralBankPublicWebService.DTOs;
+﻿using CentralBankPublicWebService.Constants;
+using CentralBankPublicWebService.DTOs;
 using MySqlConnector;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Web;
 using System.Web.Services;
 
 namespace CentralBankPublicWebService
@@ -24,6 +27,8 @@ namespace CentralBankPublicWebService
         [WebMethod]
         public List<CreditHistoryResponse> CreditHistory(string juridicTaxpayerIdentificationNumber)
         {
+            DateTime startOfInvocation = DateTime.UtcNow;
+            string requestorIp = HttpContext.Current.Request.UserHostAddress;
             List<CreditHistoryResponse> creditHistoryResponse = new List<CreditHistoryResponse>();
 
             using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["default"].ConnectionString))
@@ -35,7 +40,8 @@ namespace CentralBankPublicWebService
                     "INNER JOIN CLIENTE ON HIST_CREDITO_CLIENTE.CLIENTE_ID = CLIENTE.CLIENTE_ID " +
                     "INNER JOIN CONCEPTO_DEUDA ON HIST_CREDITO_CLIENTE.CONCEPTO_ID = CONCEPTO_DEUDA.CONCEPTO_ID " +
                     "INNER JOIN ENTIDAD ON HIST_CREDITO_CLIENTE.ENTIDAD_ID = ENTIDAD.ENTIDAD_ID " +
-                    "WHERE CLIENTE.CEDULA = @juridicTaxpayerIdentificationNumber or CLIENTE.RNC = @juridicTaxpayerIdentificationNumber", connection))
+                    "WHERE CLIENTE.CEDULA = @juridicTaxpayerIdentificationNumber or CLIENTE.RNC = @juridicTaxpayerIdentificationNumber", 
+                    connection))
                 {
                     command.Parameters.AddWithValue("juridicTaxpayerIdentificationNumber", juridicTaxpayerIdentificationNumber);
                     using (var reader = command.ExecuteReader())
@@ -51,6 +57,17 @@ namespace CentralBankPublicWebService
                             });
                         }
                     }
+                }
+                DateTime endOfInvocation = DateTime.UtcNow;
+                using (var command = new MySqlCommand("INSERT INTO CONSULTA_SERVICIO (SERVICIO_ID, FECHA_INVOCACION, FECHA_FINALIZACION, IP_SOLICITANTE) " +
+                    "VALUES(@serviceId, @startOfInvocation, @endOfInvocation, @requestorIp)", 
+                    connection))
+                {
+                    command.Parameters.Add("serviceId", MySqlDbType.Int32).Value = WebServiceMethodsId.CreditHistory;
+                    command.Parameters.Add("startOfInvocation", MySqlDbType.DateTime).Value = startOfInvocation;
+                    command.Parameters.Add("endOfInvocation", MySqlDbType.DateTime).Value = endOfInvocation;
+                    command.Parameters.Add("requestorIp", MySqlDbType.VarChar).Value = requestorIp;
+                    command.ExecuteNonQuery();
                 }
             }
 
