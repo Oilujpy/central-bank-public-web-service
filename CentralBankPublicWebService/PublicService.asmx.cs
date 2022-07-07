@@ -75,11 +75,11 @@ namespace CentralBankPublicWebService
         }
 
         [WebMethod]
-        public List<CurrencyExchangeResult> CurrencyExchange(string currencyCode)
+        public CurrencyExchangeResult CurrencyExchange(string currencyCode)
         {
             DateTime startOfInvocation = DateTime.UtcNow;
             string requestorIp = HttpContext.Current.Request.UserHostAddress;
-            List<CurrencyExchangeResult> currencyExchangeResponse = new List<CurrencyExchangeResult>();
+            CurrencyExchangeResult currencyExchangeResult = new CurrencyExchangeResult();
 
             using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["default"].ConnectionString))
             {
@@ -87,18 +87,15 @@ namespace CentralBankPublicWebService
 
                 using (var command = new MySqlCommand("SELECT CONVERSION_DOP" +
                     " FROM MONEDA" +
-                    " WHERE COD_MONEDA=@currencyCode",
+                    " WHERE UPPER(COD_MONEDA) = @currencyCode",
                     connection))
                 {
-                    command.Parameters.AddWithValue("currencyCode", currencyCode);
+                    command.Parameters.AddWithValue("currencyCode", currencyCode.ToUpper());
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            currencyExchangeResponse.Add(new CurrencyExchangeResult
-                            {
-                                DOPConversion = reader.GetDecimal(0)
-                            });
+                            currencyExchangeResult.DOPConversion = reader.GetDecimal(0);
                         }
                     }
                 }
@@ -115,7 +112,7 @@ namespace CentralBankPublicWebService
                 }
             }
 
-            return currencyExchangeResponse;
+            return currencyExchangeResult;
         }
     }
 }
