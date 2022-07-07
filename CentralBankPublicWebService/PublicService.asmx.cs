@@ -116,9 +116,9 @@ namespace CentralBankPublicWebService
         }
 
         [WebMethod]        
-        public List<FinancialHealthResult> FinancialHealth(string juridicTaxpayerIdentificationNumber)
+        public FinancialHealthResult FinancialHealth(string juridicTaxpayerIdentificationNumber)
         {
-            List<FinancialHealthResult> financialHealthResponse = new List<FinancialHealthResult>();
+            FinancialHealthResult financialHealthResponse = new FinancialHealthResult();
 
             using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["default"].ConnectionString))
             {
@@ -135,12 +135,9 @@ namespace CentralBankPublicWebService
                     {
                         while (reader.Read())
                         {
-                            financialHealthResponse.Add(new FinancialHealthResult
-                            {
-                                Indicator = reader.GetString(0),
-                                Comment = reader.GetString(1),
-                                TotalAmount = reader.GetDecimal(2)
-                            });
+                            financialHealthResponse.Indicator = reader.GetString(0);
+                            financialHealthResponse.Comment = reader.GetString(1);
+                            financialHealthResponse.TotalAmount = reader.GetDecimal(2);
                         }
                     }
                 }
