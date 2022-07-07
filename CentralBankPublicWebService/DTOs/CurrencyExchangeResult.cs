@@ -5,7 +5,7 @@ using System.Web;
 
 namespace CentralBankPublicWebService.DTOs
 {
-    public class CurrencyExchangeResponse
+    public class CurrencyExchangeResult
     {
         public decimal DOPConversion { get; set; }
     }

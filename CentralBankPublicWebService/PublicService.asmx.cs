@@ -75,11 +75,11 @@ namespace CentralBankPublicWebService
         }
 
         [WebMethod]
-        public List<CurrencyExchangeResponse> CurrencyExchange(string currencyCode)
+        public List<CurrencyExchangeResult> CurrencyExchange(string currencyCode)
         {
             DateTime startOfInvocation = DateTime.UtcNow;
             string requestorIp = HttpContext.Current.Request.UserHostAddress;
-            List<CurrencyExchangeResponse> currencyExchangeResponse = new List<CurrencyExchangeResponse>();
+            List<CurrencyExchangeResult> currencyExchangeResponse = new List<CurrencyExchangeResult>();
 
             using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["default"].ConnectionString))
             {
@@ -95,7 +95,7 @@ namespace CentralBankPublicWebService
                     {
                         while (reader.Read())
                         {
-                            currencyExchangeResponse.Add(new CurrencyExchangeResponse
+                            currencyExchangeResponse.Add(new CurrencyExchangeResult
                             {
                                 DOPConversion = reader.GetDecimal(0)
                             });
