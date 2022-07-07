@@ -118,6 +118,8 @@ namespace CentralBankPublicWebService
         [WebMethod]        
         public FinancialHealthResult FinancialHealth(string juridicTaxpayerIdentificationNumber)
         {
+            DateTime startOfInvocation = DateTime.UtcNow;
+            string requestorIp = HttpContext.Current.Request.UserHostAddress;
             FinancialHealthResult financialHealthResponse = new FinancialHealthResult();
 
             using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["default"].ConnectionString))
@@ -141,6 +143,17 @@ namespace CentralBankPublicWebService
                         }
                     }
                 }
+                DateTime endOfInvocation = DateTime.UtcNow;
+                using (var command = new MySqlCommand("INSERT INTO CONSULTA_SERVICIO (SERVICIO_ID, FECHA_INVOCACION, FECHA_FINALIZACION, IP_SOLICITANTE) " +
+                    "VALUES(@serviceId, @startOfInvocation, @endOfInvocation, @requestorIp)",
+                    connection))
+                {
+                    command.Parameters.Add("serviceId", MySqlDbType.Int32).Value = WebServiceMethodsId.FinancialHealth;
+                    command.Parameters.Add("startOfInvocation", MySqlDbType.DateTime).Value = startOfInvocation;
+                    command.Parameters.Add("endOfInvocation", MySqlDbType.DateTime).Value = endOfInvocation;
+                    command.Parameters.Add("requestorIp", MySqlDbType.VarChar).Value = requestorIp;
+                    command.ExecuteNonQuery();
+                }
             }
             return financialHealthResponse;
         }
@@ -148,6 +161,8 @@ namespace CentralBankPublicWebService
         [WebMethod]
         public InflationRateResult InflationRate(string period)
         {
+            DateTime startOfInvocation = DateTime.UtcNow;
+            string requestorIp = HttpContext.Current.Request.UserHostAddress;
             InflationRateResult inflationRateResult = new InflationRateResult();
 
             using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["default"].ConnectionString))
@@ -166,6 +181,17 @@ namespace CentralBankPublicWebService
                             inflationRateResult.Rate = reader.GetDecimal(0);
                         }
                     }
+                }
+                DateTime endOfInvocation = DateTime.UtcNow;
+                using (var command = new MySqlCommand("INSERT INTO CONSULTA_SERVICIO (SERVICIO_ID, FECHA_INVOCACION, FECHA_FINALIZACION, IP_SOLICITANTE) " +
+                    "VALUES(@serviceId, @startOfInvocation, @endOfInvocation, @requestorIp)",
+                    connection))
+                {
+                    command.Parameters.Add("serviceId", MySqlDbType.Int32).Value = WebServiceMethodsId.InflationRate;
+                    command.Parameters.Add("startOfInvocation", MySqlDbType.DateTime).Value = startOfInvocation;
+                    command.Parameters.Add("endOfInvocation", MySqlDbType.DateTime).Value = endOfInvocation;
+                    command.Parameters.Add("requestorIp", MySqlDbType.VarChar).Value = requestorIp;
+                    command.ExecuteNonQuery();
                 }
             }
             return inflationRateResult;
