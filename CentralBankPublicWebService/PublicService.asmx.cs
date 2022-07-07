@@ -155,7 +155,6 @@ namespace CentralBankPublicWebService
                     command.ExecuteNonQuery();
                 }
             }
-
             return financialHealthResponse;
         }
 
@@ -172,7 +171,7 @@ namespace CentralBankPublicWebService
 
                 using (var command = new MySqlCommand("SELECT HIST_INFLACION_MONEDA.RATE " +
                     "FROM HIST_INFLACION_MONEDA " +
-                    "WHERE HIST_INFLACION_MONEDA.PERIODO = @period", connection))
+                    "WHERE DATE_FORMAT(HIST_INFLACION_MONEDA.PERIODO, '%Y%m') = @period", connection))
                 {
                     command.Parameters.AddWithValue("period", period);
                     using (var reader = command.ExecuteReader())
