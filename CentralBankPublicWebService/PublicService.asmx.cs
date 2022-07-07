@@ -126,20 +126,20 @@ namespace CentralBankPublicWebService
             {
                 connection.Open();
 
-                using (var command = new MySqlCommand("SELECT HIST_CREDITO_CLIENTE.INDICADOR, CONCEPTO_DEUDA.NOMBRE, HIST_CREDITO_CLIENTE.MONTO " +
+                using (var command = new MySqlCommand("SELECT CONCEPTO_DEUDA.NOMBRE, SUM(HIST_CREDITO_CLIENTE.MONTO) " +
                     "FROM HIST_CREDITO_CLIENTE " +
                     "INNER JOIN CLIENTE ON HIST_CREDITO_CLIENTE.CLIENTE_ID = CLIENTE.CLIENTE_ID " +
                     "INNER JOIN CONCEPTO_DEUDA ON HIST_CREDITO_CLIENTE.CONCEPTO_ID = CONCEPTO_DEUDA.CONCEPTO_ID " +
-                    "WHERE CLIENTE.CEDULA = @juridicTaxpayerIdentificationNumber or CLIENTE.RNC = @juridicTaxpayerIdentificationNumber", connection))
+                    "WHERE CLIENTE.CEDULA = @juridicTaxpayerIdentificationNumber or CLIENTE.RNC = @juridicTaxpayerIdentificationNumber ", connection))
                 {
                     command.Parameters.AddWithValue("juridicTaxpayerIdentificationNumber", juridicTaxpayerIdentificationNumber);
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            financialHealthResponse.Indicator = reader.GetString(0);
-                            financialHealthResponse.Comment = reader.GetString(1);
-                            financialHealthResponse.TotalAmount = reader.GetDecimal(2);
+                            financialHealthResponse.Indicator = reader.GetDecimal(1) > 1000000 ? "N" : "S";
+                            financialHealthResponse.Comment = reader.GetString(0);
+                            financialHealthResponse.TotalAmount = reader.GetDecimal(1);
                         }
                     }
                 }
