@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Net;
 using System.Web;
-using System.Web.Http.Cors;
 using System.Web.Services;
 
 namespace CentralBankPublicWebService
@@ -27,7 +26,6 @@ namespace CentralBankPublicWebService
         }
 
         [WebMethod]
-        [EnableCors(origins: "*", headers: "*", methods: "*")] 
         public List<PublicWebServiceHistoricalUseResult> PublicWebServiceHistoricalUse(string password, string methodName, DateTime? start, DateTime? end)
         {
             methodName = methodName == string.Empty ? null : methodName;

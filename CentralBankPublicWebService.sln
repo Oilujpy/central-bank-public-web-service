@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32413.511
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentralBankPublicWebService", "CentralBankPublicWebService\CentralBankPublicWebService.csproj", "{8B5B9B19-3ECE-4048-A16F-28C0D152D084}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentralBankPublicWebService", "CentralBankPublicWebService\CentralBankPublicWebService.csproj", "{4D21167A-C019-4A59-B329-179BE4696EFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8B5B9B19-3ECE-4048-A16F-28C0D152D084}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B5B9B19-3ECE-4048-A16F-28C0D152D084}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B5B9B19-3ECE-4048-A16F-28C0D152D084}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B5B9B19-3ECE-4048-A16F-28C0D152D084}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D21167A-C019-4A59-B329-179BE4696EFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D21167A-C019-4A59-B329-179BE4696EFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D21167A-C019-4A59-B329-179BE4696EFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D21167A-C019-4A59-B329-179BE4696EFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {C78FF311-6C18-421D-83F0-72908B446550}
+		SolutionGuid = {6505F1EE-B77E-4F38-89B8-DBE4C44E8374}
 	EndGlobalSection
 EndGlobal
