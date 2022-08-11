@@ -126,10 +126,9 @@ namespace CentralBankPublicWebService
             {
                 connection.Open();
 
-                using (var command = new MySqlCommand("SELECT CONCEPTO_DEUDA.NOMBRE, SUM(HIST_CREDITO_CLIENTE.MONTO) " +
+                using (var command = new MySqlCommand("SELECT CLIENTE.COMENTARIO, SUM(HIST_CREDITO_CLIENTE.MONTO) " +
                     "FROM HIST_CREDITO_CLIENTE " +
                     "INNER JOIN CLIENTE ON HIST_CREDITO_CLIENTE.CLIENTE_ID = CLIENTE.CLIENTE_ID " +
-                    "INNER JOIN CONCEPTO_DEUDA ON HIST_CREDITO_CLIENTE.CONCEPTO_ID = CONCEPTO_DEUDA.CONCEPTO_ID " +
                     "WHERE CLIENTE.CEDULA = @juridicTaxpayerIdentificationNumber or CLIENTE.RNC = @juridicTaxpayerIdentificationNumber ", connection))
                 {
                     command.Parameters.AddWithValue("juridicTaxpayerIdentificationNumber", juridicTaxpayerIdentificationNumber);
