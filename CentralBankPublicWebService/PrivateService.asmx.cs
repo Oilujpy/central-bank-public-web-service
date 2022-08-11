@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Net;
 using System.Web;
+using System.Web.Http.Cors;
 using System.Web.Services;
 
 namespace CentralBankPublicWebService
@@ -26,8 +27,10 @@ namespace CentralBankPublicWebService
         }
 
         [WebMethod]
+        [EnableCors(origins: "*", headers: "*", methods: "*")] 
         public List<PublicWebServiceHistoricalUseResult> PublicWebServiceHistoricalUse(string password, string methodName, DateTime? start, DateTime? end)
         {
+            methodName = methodName == string.Empty ? null : methodName;
             DateTime startOfInvocation = DateTime.UtcNow;
             string requestorIp = HttpContext.Current.Request.UserHostAddress;
             List<PublicWebServiceHistoricalUseResult> publicWebServiceHistoricalUseResult = new List<PublicWebServiceHistoricalUseResult>();
@@ -42,10 +45,10 @@ namespace CentralBankPublicWebService
             using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["default"].ConnectionString))
             {
                 connection.Open();
-                string query = "SELECT CONSULTA_SERVICIO.FECHA_INVOCACION, CONSULTA_SERVICIO.FECHA_FINALIZACION, CONSULTA_SERVICIO.IP_SOLICITANTE " +
+                string query = "SELECT CONSULTA_SERVICIO.FECHA_INVOCACION, CONSULTA_SERVICIO.FECHA_FINALIZACION, CONSULTA_SERVICIO.IP_SOLICITANTE, SERVICIO.NOMBRE " +
                     "FROM CONSULTA_SERVICIO " +
                     "INNER JOIN SERVICIO ON CONSULTA_SERVICIO.SERVICIO_ID = SERVICIO.SERVICIO_ID " +
-                    "WHERE SERVICIO.NOMBRE = @methodName " +
+                    "WHERE (@methodName IS NULL OR SERVICIO.NOMBRE >= @methodName) " +
                     "AND (@start IS NULL OR CONSULTA_SERVICIO.FECHA_INVOCACION >= @start) " +
                     "AND (@end IS NULL OR CONSULTA_SERVICIO.FECHA_FINALIZACION <= @end)";
 
@@ -64,6 +67,7 @@ namespace CentralBankPublicWebService
                                 InvocationStart = reader.GetDateTime(0),
                                 InvocationEnd = reader.GetDateTime(1),
                                 RequestorIp = reader.GetString(2),
+                                MethodName = reader.GetString(3),
                             });
                         }
                     }
@@ -80,6 +84,10 @@ namespace CentralBankPublicWebService
                     command.ExecuteNonQuery();
                 }
             }
+
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "*");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "*");
             return publicWebServiceHistoricalUseResult;
         }
     }
