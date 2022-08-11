@@ -1,0 +1,231 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Dashboard</h2>
+<div class="container">
+    <div class="row">
+        <div class="col" style="display:inline-block;" id="CONSULTA-TASA-DE-CAMBIO-Lineal-container"></div>
+        <div class="col" style="display:inline-block;" id="CONSULTA-TASA-DE-CAMBIO-Bar-container"></div>
+    </div>
+    <div class="row">
+        <div class="col" style="display:inline-block;" id="CONSULTA-INFLACION-PERIODO-Lineal-container"></div>
+        <div class="col" style="display:inline-block;" id="CONSULTA-INFLACION-PERIODO-Bar-container"></div>
+    </div>
+    <div class="row">
+        <div class="col" style="display:inline-block;" id="CONSULTA-SALUD-FINANCIERA-Lineal-container"></div>
+        <div class="col" style="display:inline-block;" id="CONSULTA-SALUD-FINANCIERA-Bar-container"></div>
+    </div>
+    <div class="row">
+        <div class="col" style="display:inline-block;" id="CONSULTA-HISTORIAL-DE-CREDITO-Lineal-container"></div>
+        <div class="col" style="display:inline-block;" id="CONSULTA-HISTORIAL-DE-CREDITO-Bar-container"></div>
+    </div>
+    <div class="row">
+        <div class="col" style="display:inline-block;" id="CONSULTA-WEB-SERVICES-Lineal-container"></div>
+        <div class="col" style="display:inline-block;" id="CONSULTA-WEB-SERVICES-Bar-container"></div>
+    </div>
+</div>
+
+<script type="text/javascript"
+        src="https://cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.js"></script>
+<script type="text/javascript"
+        src="https://cdn.fusioncharts.com/fusioncharts/latest/themes/fusioncharts.theme.fusion.js"></script>
+<script>
+    const createBarChart = (caption, renderAt, data) => {
+        console.log(data, "data")
+        FusionCharts.ready(function () {
+            new FusionCharts({
+                type: 'column2d',
+                renderAt,
+                width: '700',
+                height: '500',
+                dataFormat: 'json',
+                dataSource: {
+                    chart: {
+                        caption,
+                        xAxisName: "Month",
+                        yAxisName: "Number of API calls",
+                        theme: "fusion"
+                    },
+                    data,
+                }
+            }).render();
+        });
+    }
+
+
+
+    const createLinealChart = (id, renderAt, caption, getValueCallback) => {
+        FusionCharts.ready(function () {
+            new FusionCharts({
+                id,
+                type: "realtimeline",
+                renderAt,
+                width: "450",
+                height: "400",
+                dataFormat: "json",
+                dataSource: {
+                    chart: {
+                        caption,
+                        xAxisName: "Time",
+                        yAxisName: "Number of API calls",
+                        refreshinterval: "1",
+                        yaxisminvalue: "0",
+                        yaxismaxvalue: "10",
+                        numdisplaysets: "10",
+                        labeldisplay: "rotate",
+                        showRealTimeValue: "0",
+                        theme: "fusion",
+                    },
+                    categories: [
+                        {
+                            category: [
+                                {
+                                    label: "Day Start",
+                                },
+                            ],
+                        },
+                    ],
+                    dataset: [
+                        {
+                            data: [
+                                {
+                                    value: "0",
+                                },
+                            ],
+                        },
+                    ],
+                },
+                events: {
+                    initialized: function (e) {
+                        function addLeadingZero(num) {
+                            return num <= 9 ? "0" + num : num;
+                        }
+
+                        function updateData() {
+                            // Get reference to the chart using its ID
+                            var chartRef = FusionCharts(id),
+                                // We need to create a querystring format incremental update, containing
+                                // label in hh:mm:ss format
+                                // and a value (random).
+                                currDate = new Date(),
+                                label =
+                                    addLeadingZero(currDate.getHours()) +
+                                    ":" +
+                                    addLeadingZero(currDate.getMinutes()) +
+                                    ":" +
+                                    addLeadingZero(currDate.getSeconds()),
+                                // Build Data String in format &label=...&value=...
+                                strData = "&label=" + label + "&value=" + getValueCallback();
+                            // Feed it to chart.
+                            chartRef.feedData(strData);
+                        }
+
+                        setInterval(() => updateData(), 10000);
+                    },
+                },
+            }).render();
+        });
+    };
+
+    window.addEventListener("load", function () {
+        let queryApiData = [];
+        setInterval(() => {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("POST", "/PrivateService.asmx", true);
+
+            // build SOAP request
+            var sr = `<?xml version="1.0" encoding="utf-8"?>
+          <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+              <soap:Body>
+                <PublicWebServiceHistoricalUse xmlns="http://tempuri.org/">
+                  <password>123456</password>
+                  <start>${new Date(Date.now() - 10000).toISOString()}</start>
+                </PublicWebServiceHistoricalUse>
+              </soap:Body>
+          </soap:Envelope>`;
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4) {
+                    if (xmlhttp.status == 200) {
+                        // alert(xmlhttp.responseText);
+                        xmlDoc = $.parseXML(xmlhttp.responseText),
+                            $xml = $(xmlDoc);
+                        queryApiData = []
+                        $($xml).find("PublicWebServiceHistoricalUseResponse").each(function (idx, v) {
+                            $(v).find("PublicWebServiceHistoricalUseResult").each(function (i, vi) {
+                                var obj = {
+                                    methodName: $(vi).find('MethodName').eq(idx).text(),
+                                };
+                                queryApiData.push(obj);
+                            });
+                        });
+
+                        console.log(queryApiData)
+                    }
+                }
+            };
+            // Send the POST request
+            xmlhttp.setRequestHeader("Content-Type", "text/xml");
+            xmlhttp.setRequestHeader(
+                "SOAPAction",
+                "http://tempuri.org/PublicWebServiceHistoricalUse"
+            );
+            xmlhttp.send(sr);
+        }, 10000)
+
+        var barChartData = @Html.Raw(Json.Encode(Model.BarChartData));
+
+        createLinealChart(
+            "CONSULTA-TASA-DE-CAMBIO",
+            "CONSULTA-TASA-DE-CAMBIO-Lineal-container",
+            "CONSULTA TASA DE CAMBIO",
+            () => queryApiData.filter(x => x.methodName === "CONSULTA TASA DE CAMBIO").length
+        );
+        createBarChart("CONSULTA TASA DE CAMBIO",
+            "CONSULTA-TASA-DE-CAMBIO-Bar-container",
+            barChartData.filter(x => x.Caption === "CONSULTA TASA DE CAMBIO").map(x => ({ label: x.Label, value: x.Value })))
+
+        createLinealChart(
+            "CONSULTA-INFLACION-PERIODO",
+            "CONSULTA-INFLACION-PERIODO-Lineal-container",
+            "CONSULTA INFLACIÓN PERIODO",
+            () => queryApiData.filter(x => x.methodName === "CONSULTA INFLACION PERIODO").length
+        );
+        createBarChart("CONSULTA INFLACIÓN PERIODO",
+            "CONSULTA-INFLACION-PERIODO-Bar-container",
+            barChartData.filter(x => x.Caption === "CONSULTA INFLACION PERIODO").map(x => ({ label: x.Label, value: x.Value })))
+
+        createLinealChart(
+            "CONSULTA-SALUD-FINANCIERA",
+            "CONSULTA-SALUD-FINANCIERA-Lineal-container",
+            "CONSULTA SALUD FINANCIERA",
+            () => queryApiData.filter(x => x.methodName === "CONSULTA SALUD FINANCIERA").length
+        );
+        createBarChart("CONSULTA SALUD FINANCIERA",
+            "CONSULTA-SALUD-FINANCIERA-Bar-container",
+            barChartData.filter(x => x.Caption === "CONSULTA SALUD FINANCIERA").map(x => ({ label: x.Label, value: x.Value })))
+
+        createLinealChart(
+            "CONSULTA-HISTORIAL-DE-CREDITO",
+            "CONSULTA-HISTORIAL-DE-CREDITO-Lineal-container",
+            "CONSULTA HISTORIAL DE CREDITO",
+            () => queryApiData.filter(x => x.methodName === "CONSULTA HISTORIAL DE CREDITO").length
+        );
+        createBarChart("CONSULTA HISTORIAL DE CREDITO",
+            "CONSULTA-HISTORIAL-DE-CREDITO-Bar-container",
+            barChartData.filter(x => x.Caption === "CONSULTA HISTORIAL DE CREDITO").map(x => ({ label: x.Label, value: x.Value })))
+
+        createLinealChart(
+            "CONSULTA-WEB-SERVICES",
+            "CONSULTA-WEB-SERVICES-Lineal-container",
+            "CONSULTA WEB SERVICES",
+            () => queryApiData.filter(x => x.methodName === "CONSULTA WEB SERVICES").length
+        );
+        createBarChart("CONSULTA WEB SERVICES",
+            "CONSULTA-WEB-SERVICES-Bar-container",
+            barChartData.filter(x => x.Caption === "CONSULTA WEB SERVICES").map(x => ({ label: x.Label, value: x.Value })))
+    });
+</script>

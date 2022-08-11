@@ -22,7 +22,8 @@
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Home", "Index", "Home")</li>
                     <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    <li>@Html.ActionLink("API Dashboard", "Index", "Dashboard")</li>
+                    <li><a href="/PublicService.asmx">Public Web Service</a></li>
                 </ul>
             </div>
         </div>
@@ -31,7 +32,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+            <p>&copy; @DateTime.Now.Year - Ronald Ogando - Julio Sanchez - Nancy Campusano</p>
         </footer>
     </div>
 

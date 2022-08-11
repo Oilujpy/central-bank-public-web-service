@@ -46,7 +46,7 @@ namespace CentralBankPublicWebService
                 string query = "SELECT CONSULTA_SERVICIO.FECHA_INVOCACION, CONSULTA_SERVICIO.FECHA_FINALIZACION, CONSULTA_SERVICIO.IP_SOLICITANTE, SERVICIO.NOMBRE " +
                     "FROM CONSULTA_SERVICIO " +
                     "INNER JOIN SERVICIO ON CONSULTA_SERVICIO.SERVICIO_ID = SERVICIO.SERVICIO_ID " +
-                    "WHERE (@methodName IS NULL OR SERVICIO.NOMBRE >= @methodName) " +
+                    "WHERE (@methodName IS NULL OR SERVICIO.NOMBRE = @methodName) " +
                     "AND (@start IS NULL OR CONSULTA_SERVICIO.FECHA_INVOCACION >= @start) " +
                     "AND (@end IS NULL OR CONSULTA_SERVICIO.FECHA_FINALIZACION <= @end)";
 
@@ -83,9 +83,6 @@ namespace CentralBankPublicWebService
                 }
             }
 
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "*");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "*");
             return publicWebServiceHistoricalUseResult;
         }
     }
